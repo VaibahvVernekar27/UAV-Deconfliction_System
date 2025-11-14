@@ -235,7 +235,7 @@ const App = () => {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-blue-400 to-purple-600 bg-clip-text text-transparent">
-            UAV Deconfliction System - Connected to Backend
+            UAV Deconfliction System - For Traffic Management
           </h1>
           <p className="text-gray-400">Full-stack 4D spatiotemporal conflict detection</p>
           <div className="flex gap-2 mt-2">
