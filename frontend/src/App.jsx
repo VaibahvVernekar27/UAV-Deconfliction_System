@@ -234,7 +234,7 @@ const App = () => {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-blue-400 to-purple-600 bg-clip-text text-transparent">
+          <h1 className="text-4xl font-bold mb-2 pb-2.5 bg-gradient-to-r from-blue-400 to-purple-600 bg-clip-text text-transparent">
             UAV Deconfliction System - For Traffic Management
           </h1>
           <p className="text-gray-400">Full-stack 4D spatiotemporal conflict detection</p>
