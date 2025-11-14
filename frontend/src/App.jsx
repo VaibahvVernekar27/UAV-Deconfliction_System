@@ -18,7 +18,6 @@ const App = () => {
   const [trajectories, setTrajectories] = useState({});
   const [view3D, setView3D] = useState(true);
 
-  // Check backend health on mount
   useEffect(() => {
     fetch(`${API_BASE_URL}/health`)
       .then(res => res.json())
@@ -28,7 +27,6 @@ const App = () => {
       })
       .catch(err => console.error('Backend not available:', err));
 
-    // Load scenarios
     fetch(`${API_BASE_URL}/scenarios`)
       .then(res => res.json())
       .then(data => {
@@ -38,7 +36,6 @@ const App = () => {
       .catch(err => console.error('Error loading scenarios:', err));
   }, []);
 
-  // Load scenario
   const loadScenario = (scenarioKey, scenariosData = scenarios) => {
     const scenario = scenariosData[scenarioKey];
     if (scenario) {
@@ -51,7 +48,6 @@ const App = () => {
     }
   };
 
-  // Verify mission
   const verifyMission = async () => {
     if (!primaryMission || otherMissions.length === 0) return;
 
@@ -70,7 +66,6 @@ const App = () => {
       const result = await response.json();
       setVerificationResult(result);
 
-      // Load trajectories for visualization
       await loadTrajectories();
     } catch (error) {
       console.error('Verification error:', error);
@@ -80,7 +75,6 @@ const App = () => {
     }
   };
 
-  // Load trajectories
   const loadTrajectories = async () => {
     const allMissions = [primaryMission, ...otherMissions];
     const trajData = {};
@@ -102,7 +96,6 @@ const App = () => {
     setTrajectories(trajData);
   };
 
-  // Animation
   useEffect(() => {
     if (!isPlaying || !primaryMission) return;
 
@@ -120,11 +113,9 @@ const App = () => {
     return () => clearInterval(interval);
   }, [isPlaying, primaryMission]);
 
-  // Get position at current time
   const getPositionAtTime = (trajectory, time) => {
     if (!trajectory || trajectory.length === 0) return null;
     
-    // Find closest time sample
     let closest = trajectory[0];
     let minDiff = Math.abs(trajectory[0].time - time);
     
@@ -139,7 +130,6 @@ const App = () => {
     return closest.position;
   };
 
-  // 3D Visualization
   const render3DView = () => {
     if (!primaryMission) return null;
 
@@ -147,7 +137,6 @@ const App = () => {
     const offsetX = 200;
     const offsetY = 300;
 
-    // Isometric projection
     const project = (x, y, z) => ({
       x: offsetX + (x - y) * Math.cos(Math.PI / 6) * scale,
       y: offsetY - z * scale * 0.8 + (x + y) * Math.sin(Math.PI / 6) * scale

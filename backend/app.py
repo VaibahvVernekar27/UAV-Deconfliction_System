@@ -1,45 +1,26 @@
-"""
-Flask Backend API for UAV Deconfliction System
-==============================================
-
-This Flask server provides REST API endpoints for the React frontend.
-It connects to your existing deconfliction code.
-
-Setup:
-1. Save as: backend/app.py
-2. Install: pip install flask flask-cors
-3. Run: python backend/app.py
-4. Server runs on: http://localhost:5000
-"""
-
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import sys
 import os
 
-# Add src directory to path
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.abspath(os.path.join(CURRENT_DIR, '..'))
 SRC_PATH = os.path.join(PROJECT_ROOT, 'Deconfliction_System', 'src')
 sys.path.insert(0, SRC_PATH)
 
-# Import your existing code
 from models import Waypoint, TimeWindow, DroneMission, DeconflictionReport
 from deconfliction_service import DeconflictionService
 from trajectory import TrajectoryInterpolator
 
-# Try to import ML service (optional)
 try:
     from ml_service import MLEnhancedDeconflictionService
     ML_AVAILABLE = True
 except:
     ML_AVAILABLE = False
 
-# Initialize Flask app
 app = Flask(__name__)
-CORS(app)  # Enable CORS for React frontend
+CORS(app) 
 
-# Initialize services
 geometric_service = DeconflictionService(safety_buffer=15.0, time_resolution=0.5)
 
 if ML_AVAILABLE:
@@ -53,11 +34,6 @@ if ML_AVAILABLE:
         print("⚠ ML model not found, using geometric only")
 else:
     ml_service = None
-
-
-# ==============================================================================
-# API ENDPOINTS
-# ==============================================================================
 
 @app.route('/api/health', methods=['GET'])
 def health_check():
@@ -97,21 +73,16 @@ def verify_mission():
     try:
         data = request.json
         
-        # Parse primary mission
         primary_data = data['primary']
         primary_mission = parse_mission(primary_data)
-        
-        # Parse other missions
+
         other_missions = [parse_mission(m) for m in data.get('others', [])]
-        
-        # Choose service
+
         use_ml = data.get('useML', False) and ml_service is not None
         service = ml_service if use_ml else geometric_service
-        
-        # Verify mission
+
         report = service.verify_mission(primary_mission, other_missions)
-        
-        # Convert report to JSON
+
         response = {
             'status': report.status,
             'conflicts': [
@@ -132,8 +103,7 @@ def verify_mission():
             'analysisTime': report.analysis_time,
             'mlUsed': use_ml
         }
-        
-        # Add ML stats if available
+
         if use_ml and hasattr(service, 'get_statistics'):
             stats = service.get_statistics()
             response['mlStats'] = {
@@ -171,13 +141,10 @@ def get_trajectory():
         mission = parse_mission(data['mission'])
         num_samples = data.get('numSamples', 100)
         
-        # Create interpolator
         interpolator = TrajectoryInterpolator(mission)
-        
-        # Get samples
+
         samples = interpolator.get_trajectory_samples(num_samples)
         
-        # Convert to JSON
         trajectory = [
             {
                 'time': t,
@@ -287,11 +254,6 @@ def get_ml_stats():
     else:
         return jsonify({'error': 'ML service not available'}), 404
 
-
-# ==============================================================================
-# HELPER FUNCTIONS
-# ==============================================================================
-
 def parse_mission(mission_data):
     """Parse mission data from JSON to DroneMission object."""
     waypoints = [
@@ -313,11 +275,6 @@ def parse_mission(mission_data):
         waypoints=waypoints,
         time_window=time_window
     )
-
-
-# ==============================================================================
-# RUN SERVER
-# ==============================================================================
 
 if __name__ == '__main__':
     print("\n" + "="*60)
